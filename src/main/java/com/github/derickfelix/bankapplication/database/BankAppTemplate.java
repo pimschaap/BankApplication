@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class BankAppTemplate {
-    public void update(String sql, Map<String, Object> params)
-    {
+public class BankAppTemplate implements BankAppTemplate {
+    @Override
+    public void update(String sql, Map<String, Object> params) {
         try (Connection c = getConnection()) {
             // Create statement
             if (params != null) {
@@ -52,9 +52,9 @@ public class BankAppTemplate {
             throw new RuntimeException(e);
         }
     }
-    
-    public <T> Optional<T> queryForObject(String sql, Map<String, Object> params, RowMapper<T> rowMapper)
-    {
+
+    @Override
+    public <T> Optional<T> queryForObject(String sql, Map<String, Object> params, RowMapper<T> rowMapper) {
         List<T> query = query(sql, params, rowMapper);
 
         if (query == null || query.isEmpty()) {
@@ -63,14 +63,13 @@ public class BankAppTemplate {
 
         return Optional.of(query.get(0));
     }
-    
-    public <T> List<T> queryForList(String sql, Map<String, Object> params, RowMapper<T> rowMapper)
-    {
+
+    @Override
+    public <T> List<T> queryForList(String sql, Map<String, Object> params, RowMapper<T> rowMapper) {
         return query(sql, params, rowMapper);
     }
-    
-    private <T> List<T> query(String sql, Map<String, Object> params, RowMapper<T> rowMapper)
-    {
+
+    private <T> List<T> query(String sql, Map<String, Object> params, RowMapper<T> rowMapper) {
         try (Connection c = getConnection()) {
             // Create statement
             if (params != null) {
@@ -92,9 +91,8 @@ public class BankAppTemplate {
 
         return null;
     }
-    
-    private String createSql(Map<String, Object> params, String sql)
-    {
+
+    private String createSql(Map<String, Object> params, String sql) {
         StringBuilder builder = new StringBuilder();
         StringBuilder keyBuilder = new StringBuilder();
 
@@ -118,13 +116,18 @@ public class BankAppTemplate {
 
         return builder.toString();
     }
-      
-    private Connection getConnection() throws ClassNotFoundException, SQLException
-    {
+
+    private Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
         String username = "sa";
         String password = "";
-        
-        return DriverManager.getConnection("jdbc:h2:" + FileUtility.home() + "db;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE", username, password);
+
+        return DriverManager.getConnection(
+                "jdbc:h2:" + FileUtility.home() + "db;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE", username, password);
+    }
+
+    @Override
+    public String toString() {
+        return "BankAppTemplate []";
     }
 }
